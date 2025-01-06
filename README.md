@@ -1,1 +1,16 @@
-[![Open in Codespaces](https://classroom.github.com/assets/launch-codespace-2972f46106e565e64193e422d61a12cf1da4916b45550586e14ef0a7c637dd04.svg)](https://classroom.github.com/open-in-codespaces?assignment_repo_id=17615464)
+# Text-Based 2D Sandbox Game
+
+## Description:
+This is a simple text-based 2D sandbox game where you control a player who can move around a grid, use items from a hotbar, and interact with NPCs.
+
+## Features:
+- WASD movement controls
+- 9-slot hotbar for item use
+- Interactions with NPCs
+- Health, damage, and healing mechanics
+
+## Running the Game:
+1. Clone the repository.
+2. Run `main.py` to start the game.
+
+python main.py
