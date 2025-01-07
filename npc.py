@@ -3,15 +3,13 @@ from item import WoodenAxe, StoneAxe, WoodenPickaxe, StonePickaxe
 class NPC:
     def __init__(self, name, position, dialogue):
         self.name = name
-        self.position = position  # NPC position in the world
-        self.dialogue = dialogue  # Dialogue to display when interacting
+        self.position = position  
+        self.dialogue = dialogue  
 
     def talk(self):
-        """Display NPC dialogue."""
         print(f"{self.name} says: {self.dialogue}")
 
     def interact(self, player):
-        """Allow player to interact with the NPC."""
         self.talk()
 
 class Blacksmith(NPC):
@@ -19,7 +17,6 @@ class Blacksmith(NPC):
         super().__init__(name, position, dialogue)
 
     def craft(self, player, tool_name):
-        """Craft tools if the player has the right resources."""
         if tool_name == "Wooden Axe" and player.inventory["Wood"] >= 3:
             player.inventory["Wood"] -= 3
             player.hotbar.append(WoodenAxe())
@@ -43,7 +40,6 @@ class Blacksmith(NPC):
             print("You do not have the required resources to craft this tool.")
     
     def interact(self, player):
-        """Allow the player to interact with the Blacksmith."""
         self.talk()
         tool_choice = input("Which tool would you like to craft? (Wooden Axe, Stone Axe, Wooden Pickaxe, Stone Pickaxe): ")
         self.craft(player, tool_choice)
