@@ -1,150 +1,207 @@
 import pygame
-from player import Player
-from npc import NPC, Blacksmith
-from item import Item, Wood, Stone, WoodenAxe, StoneAxe, WoodenPickaxe, StonePickaxe
+from pygame.locals import *
+
+# Constants for screen size and font
+SCREEN_WIDTH = 1200
+SCREEN_HEIGHT = 1000
+
+# Initialize Pygame
+pygame.init()
+
+# Use the system default font with size 36
+FONT = pygame.font.SysFont('Arial', 36)
+
+# Create the Pygame screen
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Untitled 2D Game")
+
 
 class Game:
     def __init__(self, screen, font, screen_width, screen_height):
         self.screen = screen
         self.font = font
-        self.screen_width = screen_width  
-        self.screen_height = screen_height  
-        self.player = Player()  
-        self.npcs = [
-            NPC("Guide", [5, 5], "Welcome to the sandbox world!"),
-            Blacksmith("Blacksmith", [10, 10], "I can craft tools for you if you have the right materials.")
-        ]
-        self.blue_block = [7, 7]  
-        self.quest_given = False  
-        self.items = [
-            Wood(),
-            Stone()
-        ]
-        self.game_running = True  # Game loop flag
+        self.screen_width = screen_width
+        self.screen_height = screen_height
+        self.health = 100
+        self.x = 500
+        self.y = 500
+        self.size = 50
+        self.speed = 5
+        self.selected_hotbar = 0
+        self.hotbar_items = [None] * 9  # Placeholder for hotbar items
+
+    def draw_health_bar(self):
+        """Draw the health bar at the top of the screen but move it down slightly"""
+        health_bar_width = self.screen_width - 20
+        health_bar_height = 50
+        health_bar_x = 10
+        health_bar_y = 10 # Adjusted y position to move the health bar down
+
+        # Draw the health bar background (red)
+        pygame.draw.rect(self.screen, (255, 0, 0), (health_bar_x, health_bar_y, health_bar_width, health_bar_height))
+
+        # Draw the health percentage overlay (green)
+        health_percentage_width = (self.health / 100) * (self.screen_width - 20)
+        pygame.draw.rect(self.screen, (0, 255, 0), (health_bar_x, health_bar_y, health_percentage_width, health_bar_height))
+
+        # Draw the health text (with slightly adjusted position to keep it in the same place)
+        health_text = self.font.render(f"Health: {self.health}%", True, (255, 255, 255))
+        self.screen.blit(health_text, (health_bar_x, health_bar_y))  # Keep text in place
+
+    def draw_hotbar(self):
+        """Draw the hotbar at the bottom of the screen"""
+        hotbar_width = self.screen_width - 20
+        hotbar_height = 50
+        hotbar_x = 10
+        hotbar_y = self.screen_height - hotbar_height - 10
+
+        # Draw the hotbar background (gray)
+        pygame.draw.rect(self.screen, (50, 50, 50), (hotbar_x, hotbar_y, hotbar_width, hotbar_height))
+
+        # Draw the hotbar items (with numbers in each box)
+        box_width = (self.screen_width - 20) // 9
+        for i in range(9):
+            box_x = hotbar_x + i * box_width
+            pygame.draw.rect(self.screen, (100, 100, 100), (box_x, hotbar_y, box_width, hotbar_height))
+
+            # Draw the number on the top-left corner of each box
+            number_text = self.font.render(str(i + 1), True, (255, 255, 255))
+            self.screen.blit(number_text, (box_x + 5, hotbar_y + 5))  # Small number at the top-left
+
+            # Highlight the selected box
+            if i == self.selected_hotbar:
+                pygame.draw.rect(self.screen, (255, 255, 255), (box_x, hotbar_y, box_width, hotbar_height), 5)
+
+    def move_square(self):
+        """Move the square on the screen with WASD, restricted by the border"""
+        keys = pygame.key.get_pressed()
+
+        # Calculate movement limits based on health bar (above) and hotbar (below)
+        top_limit = 50 + 30  # Just below the health bar
+        bottom_limit = self.screen_height - (50 + 30)  # Just above the hotbar
+
+        if keys[K_w] and self.y > top_limit:  # Prevent going above health bar
+            self.y -= self.speed
+        if keys[K_s] and self.y < bottom_limit:  # Prevent going below hotbar
+            self.y += self.speed
+        if keys[K_a] and self.x > 0:
+            self.x -= self.speed
+        if keys[K_d] and self.x < self.screen_width - self.size:
+            self.x += self.speed
+
+    def select_hotbar_item(self):
+        """Switch selected hotbar item with number keys"""
+        keys = pygame.key.get_pressed()
+        for i in range(9):
+            if keys[K_1 + i]:  # Check for number key press (1-9)
+                self.selected_hotbar = i
 
     def start_game(self):
-        while self.game_running:
-            self.screen.fill((255, 255, 255))  # Fill the screen with a white background
+        """Main game loop"""
+        running = True
+        while running:
+            self.screen.fill((0, 0, 0))  # Black background
 
-            # Display the game world
-            self.display_game()
+            # Handle events
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    running = False
 
-            # Handle user input and events
-            self.player_input()
+            # Move the square based on user input
+            self.move_square()
 
-            # Update the screen
+            # Draw health bar
+            self.draw_health_bar()
+
+            # Draw hotbar
+            self.draw_hotbar()
+
+            # Draw the moving square
+            pygame.draw.rect(self.screen, (0, 255, 0), (self.x, self.y, self.size, self.size))
+
+            # Update the display
             pygame.display.flip()
 
-    def display_game(self):
-        # Display the player (as a block)
-        pygame.draw.rect(self.screen, (0, 0, 255), (self.player.position[0] * 40, self.player.position[1] * 40, 40, 40))  # Blue square (player)
-        
-        # Display NPCs
-        for npc in self.npcs:
-            pygame.draw.rect(self.screen, (255, 0, 0), (npc.position[0] * 40, npc.position[1] * 40, 40, 40))  # Red square (NPC)
+            # Handle key events for hotbar item selection
+            self.select_hotbar_item()
 
-        # Display Blue Block for interaction
-        self.display_blue_block()
 
-        # Display the hotbar at the bottom
-        self.display_hotbar()
+def draw_button(screen, text, x, y, width, height, color, text_color):
+    """Draw a button with text"""
+    pygame.draw.rect(screen, color, (x, y, width, height))
+    text_surface = FONT.render(text, True, text_color)
+    text_rect = text_surface.get_rect(center=(x + width // 2, y + height // 2))
+    screen.blit(text_surface, text_rect)
 
-        # Display the health bar with text (adjusted)
-        self.display_health_bar()
 
-        # Display the score at the top-left corner
-        self.display_score()
+def start_game():
+    """Function to start the game"""
+    game = Game(screen, FONT, SCREEN_WIDTH, SCREEN_HEIGHT)  # Initialize game
+    game.start_game()  # Start the main game loop
 
-        # Display text and player position above the black bar
-        self.display_text()
 
-        # Display guide quest text if the quest has been given
-        if self.quest_given:
-            self.display_quest_text()
+def show_controls():
+    """Function to display the controls screen"""
+    controls_running = True
+    while controls_running:
+        screen.fill((0, 0, 0))  # Black background
+        draw_button(screen, "Controls", 0, 0, SCREEN_WIDTH, 100, (50, 50, 50), (255, 255, 255))
+        control_text = [
+            "1-9: Select items from Hotbar",
+            "W: Move Up",
+            "S: Move Down",
+            "A: Move Left",
+            "D: Move Right",
+            "E: Interact with objects"
+        ]
 
-    def display_blue_block(self):
-        # Draw the blue block on the screen
-        pygame.draw.rect(self.screen, (0, 0, 255), (self.blue_block[0] * 40, self.blue_block[1] * 40, 40, 40))  # Blue block for interaction
-        
-        # Check if the player is standing on the blue block
-        if self.player.position == self.blue_block:
-            self.display_question_prompt()
+        y_offset = 120
+        for text in control_text:
+            control_surface = FONT.render(text, True, (255, 255, 255))
+            screen.blit(control_surface, (50, y_offset))
+            y_offset += 40
 
-    def display_question_prompt(self):
-        # Display a question prompt when the player stands on the blue block
-        question_text = self.font.render("Do you want to interact with the blue block? (Y/N)", True, (255, 255, 255))
-        self.screen.blit(question_text, (self.screen_width // 4, self.screen_height // 2))  # Center the text
-
-    def display_hotbar(self):
-        # Draw the black hotbar background
-        pygame.draw.rect(self.screen, (0, 0, 0), (0, self.screen_height - 100, self.screen_width, 50))  # Black bar for hotbar
-
-        # Draw item slots in the hotbar
-        slot_width = self.screen_width // 9
-        for i in range(9):
-            pygame.draw.rect(self.screen, (255, 255, 255), (i * slot_width, self.screen_height - 100, slot_width, 50), 2)  # White box for items
-
-            # Display item number (1-9) on the hotbar
-            item_number = self.font.render(str(i + 1), True, (255, 255, 255))
-            self.screen.blit(item_number, (i * slot_width + 10, self.screen_height - 90))  # Position item numbers
-
-    def display_health_bar(self):
-        # Adjust the health bar to be higher (around 100 pixels from the bottom)
-        health_bar_y_position = self.screen_height - 150  # Move the health bar 100 pixels up from the bottom
-        health_width = (self.player.health / 100) * self.screen_width  # Adjust width based on health percentage
-        pygame.draw.rect(self.screen, (255, 0, 0), (0, health_bar_y_position, health_width, 20))  # Red bar
-
-        # Display health text on top of the health bar
-        health_text = self.font.render(f"Health: {self.player.health}", True, (255, 255, 255))
-        self.screen.blit(health_text, (10, health_bar_y_position + 2))  # Display health text
-
-    def display_score(self):
-        # Display the score at the top-left corner
-        score_text = f"Score: {self.player.score}"
-        score_surface = self.font.render(score_text, True, (255, 255, 255))  # White text
-        self.screen.blit(score_surface, (10, 10))  # Position score in the top-left corner
-
-    def display_quest_text(self):
-        # Display the guide's quest in orange color
-        quest_text = "Quest: Find the mysterious blue block!"
-        quest_surface = self.font.render(quest_text, True, (255, 165, 0))  # Orange text
-        self.screen.blit(quest_surface, (self.screen_width // 2 - 100, self.screen_height - 200))  # Position the quest text
-
-    def display_text(self):
-        # Display position info above the black bar
-        position_text = f"Position: {self.player.position}"
-        position_surface = self.font.render(position_text, True, (255, 255, 255))  # White text
-
-        # Draw the black bar at the bottom
-        pygame.draw.rect(self.screen, (0, 0, 0), (0, self.screen_height - 50, self.screen_width, 50))  # Black bar
-        
-        # Position the position text on top of the black bar
-        self.screen.blit(position_surface, (10, self.screen_height - 40))  # Position text
-
-    def player_input(self):
-        # Check for events (keyboard inputs, quit, etc.)
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.game_running = False  # Close the game
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_w:
-                    self.player.move('w')  # Move up
-                elif event.key == pygame.K_s:
-                    self.player.move('s')  # Move down
-                elif event.key == pygame.K_a:
-                    self.player.move('a')  # Move left
-                elif event.key == pygame.K_d:
-                    self.player.move('d')  # Move right
-                elif event.key == pygame.K_q:
-                    self.game_running = False  # Quit the game
-                elif event.key == pygame.K_y:
-                    if self.player.position == self.blue_block:
-                        print("You chose to interact with the blue block.")
-                elif event.key == pygame.K_n:
-                    if self.player.position == self.blue_block:
-                        print("You chose not to interact with the blue block.")
-                # Handle interactions with NPCs
-                elif event.key == pygame.K_e:
-                    for npc in self.npcs:
-                        if self.player.position == npc.position:
-                            npc.interact(self.player)
+            if event.type == QUIT:
+                controls_running = False
+            if event.type == MOUSEBUTTONDOWN:
+                if event.button == 1:  # Left click
+                    mouse_pos = pygame.mouse.get_pos()
+                    if (0 <= mouse_pos[0] <= SCREEN_WIDTH and 0 <= mouse_pos[1] <= 100):
+                        controls_running = False  # Close controls screen when clicked
+
+        pygame.display.flip()
+
+
+def main_menu():
+    """Main menu screen"""
+    menu_running = True
+    while menu_running:
+        screen.fill((0, 0, 0))  # Black background
+        draw_button(screen, "Untitled 2D Game", 0, 0, SCREEN_WIDTH, 100, (50, 50, 50), (255, 255, 255))
+        draw_button(screen, "Start Game", 100, 200, 300, 50, (0, 255, 0), (255, 255, 255))
+        draw_button(screen, "Controls", 100, 300, 300, 50, (255, 165, 0), (255, 255, 255))
+
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                menu_running = False
+            if event.type == MOUSEBUTTONDOWN:
+                if event.button == 1:  # Left click
+                    mouse_pos = pygame.mouse.get_pos()
+                    if 100 <= mouse_pos[0] <= 400 and 200 <= mouse_pos[1] <= 250:
+                        start_game()  # Start the game when "Start Game" is clicked
+                        menu_running = False
+                    elif 100 <= mouse_pos[0] <= 400 and 300 <= mouse_pos[1] <= 350:
+                        show_controls()  # Show controls when "Controls" is clicked
+                        menu_running = False
+
+        pygame.display.flip()
+
+
+def main():
+    """Main function to run the game"""
+    main_menu()
+
+
+if __name__ == "__main__":
+    main()
