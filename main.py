@@ -65,7 +65,7 @@ def main_menu():
     """Main menu screen"""
     menu_running = True
     while menu_running:
-        screen.fill((0, 0, 0))  # Black background
+        screen.fill((0, 0, 0))  #Background
 
         # Draw the title centered at the top
         title_surface = FONT.render("Untitled 2D Game", True, (255, 255, 255))
