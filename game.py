@@ -35,7 +35,10 @@ class Game:
         health_bar_width = self.screen_width - 20
         health_bar_height = 50
         health_bar_x = 10
-        health_bar_y = 10 # Adjusted y position to move the health bar down
+        health_bar_y = 10  # Adjusted y position to move the health bar down
+
+        # Draw the red outline (border) around the health bar
+        pygame.draw.rect(self.screen, (255, 0, 0), (health_bar_x - 5, health_bar_y - 5, health_bar_width + 10, health_bar_height + 10), 5)
 
         # Draw the health bar background (red)
         pygame.draw.rect(self.screen, (255, 0, 0), (health_bar_x, health_bar_y, health_bar_width, health_bar_height))
@@ -54,6 +57,9 @@ class Game:
         hotbar_height = 50
         hotbar_x = 10
         hotbar_y = self.screen_height - hotbar_height - 10
+
+        # Draw the red outline (border) around the hotbar
+        pygame.draw.rect(self.screen, (255, 0, 0), (hotbar_x - 5, hotbar_y - 5, hotbar_width + 10, hotbar_height + 10), 5)
 
         # Draw the hotbar background (gray)
         pygame.draw.rect(self.screen, (50, 50, 50), (hotbar_x, hotbar_y, hotbar_width, hotbar_height))
@@ -77,8 +83,8 @@ class Game:
         keys = pygame.key.get_pressed()
 
         # Calculate movement limits based on health bar (above) and hotbar (below)
-        top_limit = 50 + 30  # Just below the health bar
-        bottom_limit = self.screen_height - (50 + 30)  # Just above the hotbar
+        top_limit = 60  # Just below the health bar
+        bottom_limit = self.screen_height - (110)  # Just above the hotbar
 
         if keys[K_w] and self.y > top_limit:  # Prevent going above health bar
             self.y -= self.speed
