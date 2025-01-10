@@ -14,6 +14,7 @@ pygame.display.set_caption("Untitled 2D Game")
 tree_img = pygame.image.load('tree.png')
 cave_entrance_img = pygame.image.load('cave_entrance.png')
 cave_img = pygame.image.load('cave.png')
+rock_img = pygame.image.load('rock.png')
 
 class Game:
     def __init__(self, screen, font, screen_width, screen_height):
@@ -27,8 +28,9 @@ class Game:
         self.size = 50
         self.speed = 1
         self.selected_hotbar = 0
-        self.hotbar_items = [None] * 9 
-        self.in_cave = False 
+        self.hotbar_items = [None] * 9  # Hotbar with 9 slots
+        self.in_cave = False  # To check if player is inside the cave
+        self.has_pickaxe = False  # To check if the player has a pickaxe
 
     def draw_health_bar(self):
         """Draw the health bar at the top of the screen but move it down slightly"""
@@ -84,44 +86,48 @@ class Game:
                 self.selected_hotbar = i
 
     def draw_interaction_boxes(self):
+        # Cave entrance (blue horizontal box)
         cave_box_x = 50
-        cave_box_y = 50
-        cave_box_width = 200
+        cave_box_y = 150
+        cave_box_width = 300  # Horizontal box
         cave_box_height = 100
         pygame.draw.rect(self.screen, (0, 0, 255), (cave_box_x, cave_box_y, cave_box_width, cave_box_height))
 
-        tree_box_x = self.screen_width - 250
-        tree_box_y = 50
-        tree_box_width = 200
-        tree_box_height = 100
-        pygame.draw.rect(self.screen, (0, 0, 255), (tree_box_x, tree_box_y, tree_box_width, tree_box_height))
+        # Rock (blue box under the rock)
+        rock_box_x = self.screen_width - 250
+        rock_box_y = 250
+        rock_box_width = 200
+        rock_box_height = 100
+        pygame.draw.rect(self.screen, (0, 0, 255), (rock_box_x, rock_box_y, rock_box_width, rock_box_height))
 
         self.screen.blit(tree_img, (self.screen_width - 200, 50))
-
-        self.screen.blit(cave_entrance_img, (50, 50))
+        self.screen.blit(cave_entrance_img, (50, 150))
+        self.screen.blit(rock_img, (self.screen_width - 200, 250))
 
     def handle_interactions(self):
         keys = pygame.key.get_pressed()
 
-        if self.x >= self.screen_width - 250 and self.y >= 50 and self.y <= 150:
-            if keys[K_e]:
-                choice = input("Do you want to grab sticks (1), cut the tree (requires an axe (2)), or leave (0): ")
-                if choice == '1':
-                    print("You grab some sticks.")
-                elif choice == '2' and any(item == "Axe" for item in self.hotbar_items):
-                    print("You cut the tree down.")
-                elif choice == '0':
-                    print("You leave the tree.")
-
-
-        if self.x <= 250 and self.y >= 50 and self.y <= 150:
+        # Cave interaction
+        if self.x >= 50 and self.x <= 350 and self.y >= 150 and self.y <= 250:
             if keys[K_e]:
                 choice = input("Do you want to enter the cave? (1 to enter, 0 to leave): ")
                 if choice == '1':
-                    self.in_cave = True
+                    self.in_cave = True  # Transition to cave
                     print("Entering the cave...")
                 elif choice == '0':
                     print("You leave the cave entrance.")
+
+        # Rock interaction (check if the player has a pickaxe)
+        if self.x >= self.screen_width - 250 and self.x <= self.screen_width - 50 and self.y >= 250 and self.y <= 350:
+            if keys[K_e]:
+                if self.has_pickaxe:
+                    choice = input("Do you want to acquire rocks? (1 for yes, 0 for no): ")
+                    if choice == '1':
+                        print("You acquire some rocks!")
+                    elif choice == '0':
+                        print("You leave the rock.")
+                else:
+                    print("You need a pickaxe to acquire rocks.")
 
     def start_game(self):
         """Main game loop"""
