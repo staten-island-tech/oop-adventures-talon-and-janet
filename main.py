@@ -1,5 +1,6 @@
 import pygame
 from game import Game
+from text_game import TextGame
 from pygame.locals import *
 
 SCREEN_WIDTH = 1200  # Width
@@ -8,7 +9,7 @@ SCREEN_HEIGHT = 1000  # Height
 pygame.init()
 
 FONT = pygame.font.SysFont('Arial', 36)
-
+1
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Untitled 2D Game")
 
