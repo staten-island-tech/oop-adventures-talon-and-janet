@@ -1,6 +1,5 @@
 import pygame
 from game import Game
-from text_game import TextGame
 from pygame.locals import *
 
 SCREEN_WIDTH = 1200  # Width
@@ -9,7 +8,7 @@ SCREEN_HEIGHT = 1000  # Height
 pygame.init()
 
 FONT = pygame.font.SysFont('Arial', 36)
-1
+
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Untitled 2D Game")
 
@@ -20,7 +19,7 @@ def draw_button(screen, text, x, y, width, height, color, text_color):
     screen.blit(text_surface, text_rect)
 
 def start_game():
-    game = Game(screen, FONT, SCREEN_WIDTH, SCREEN_HEIGHT)
+    game = Game(screen, FONT, SCREEN_WIDTH, SCREEN_HEIGHT) 
     game.start_game()
 
 def show_controls():
@@ -59,7 +58,7 @@ def main_menu():
     """Main menu screen"""
     menu_running = True
     while menu_running:
-        screen.fill((0, 0, 0))  # Background
+        screen.fill((0, 0, 0))  #Background
 
         title_surface = FONT.render("Untitled 2D Game", True, (255, 255, 255))
         title_rect = title_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 4))

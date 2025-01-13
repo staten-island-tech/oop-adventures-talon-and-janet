@@ -8,21 +8,12 @@ pygame.init()
 
 FONT = pygame.font.SysFont('Arial', 36)
 
-def draw_button(screen, text, x, y, width, height, bg_color, text_color):
-    """Draws a button with text on the screen."""
-    pygame.draw.rect(screen, bg_color, (x, y, width, height))
-    pygame.draw.rect(screen, (255, 255, 255), (x, y, width, height), 2)  # Add a border
-    button_text = FONT.render(text, True, text_color)
-    text_rect = button_text.get_rect(center=(x + width // 2, y + height // 2))
-    screen.blit(button_text, text_rect)
-
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Untitled 2D Game")
 
 tree_img = pygame.image.load('tree.png')
 cave_entrance_img = pygame.image.load('cave_entrance.png')
 cave_img = pygame.image.load('cave.png')
-rock_img = pygame.image.load('rock.png')
 
 class Game:
     def __init__(self, screen, font, screen_width, screen_height):
@@ -36,29 +27,30 @@ class Game:
         self.size = 50
         self.speed = 1
         self.selected_hotbar = 0
-        self.hotbar_items = [None] * 9
-        self.in_cave = False
-        self.has_pickaxe = False
+        self.hotbar_items = [None] * 9 
+        self.in_cave = False 
 
     def draw_health_bar(self):
-        """Draw the health bar at the top of the screen."""
+        """Draw the health bar at the top of the screen but move it down slightly"""
         health_bar_width = self.screen_width - 20
         health_bar_height = 50
         health_bar_x = 10
         health_bar_y = 10 
 
         pygame.draw.rect(self.screen, (255, 0, 0), (health_bar_x, health_bar_y, health_bar_width, health_bar_height))
+
         health_text = self.font.render(f"Health: {self.health}%", True, (255, 255, 255))
-        self.screen.blit(health_text, (health_bar_x, health_bar_y))
+        self.screen.blit(health_text, (health_bar_x, health_bar_y))  
 
     def draw_hotbar(self):
-        """Draw the hotbar at the bottom of the screen."""
+        """Draw the hotbar at the bottom of the screen"""
         hotbar_width = self.screen_width - 20
         hotbar_height = 50
         hotbar_x = 10
         hotbar_y = self.screen_height - hotbar_height - 10
 
         pygame.draw.rect(self.screen, (255, 0, 0), (hotbar_x - 5, hotbar_y - 5, hotbar_width + 10, hotbar_height + 10), 5)
+
         pygame.draw.rect(self.screen, (50, 50, 50), (hotbar_x, hotbar_y, hotbar_width, hotbar_height))
 
         box_width = (self.screen_width - 20) // 9
@@ -75,7 +67,7 @@ class Game:
     def move_square(self):
         keys = pygame.key.get_pressed()
         top_limit = 60  
-        bottom_limit = self.screen_height - 110
+        bottom_limit = self.screen_height - (110)
         if keys[K_w] and self.y > top_limit:
             self.y -= self.speed
         if keys[K_s] and self.y < bottom_limit:
@@ -92,69 +84,47 @@ class Game:
                 self.selected_hotbar = i
 
     def draw_interaction_boxes(self):
-        """Draw interaction boxes depending on the game state."""
-        if self.in_cave:
-            # Rock (inside the cave)
-            rock_box_x = self.screen_width - 250
-            rock_box_y = 250
-            rock_box_width = 200
-            rock_box_height = 100
-            pygame.draw.rect(self.screen, (0, 0, 255), (rock_box_x, rock_box_y, rock_box_width, rock_box_height))
-            self.screen.blit(rock_img, (self.screen_width - 200, 250))
+        cave_box_x = 50
+        cave_box_y = 50
+        cave_box_width = 200
+        cave_box_height = 100
+        pygame.draw.rect(self.screen, (0, 0, 255), (cave_box_x, cave_box_y, cave_box_width, cave_box_height))
 
-            # Exit cave box
-            exit_cave_box_x = 50
-            exit_cave_box_y = 150
-            exit_cave_box_width = 300
-            exit_cave_box_height = 100
-            pygame.draw.rect(self.screen, (0, 0, 255), (exit_cave_box_x, exit_cave_box_y, exit_cave_box_width, exit_cave_box_height))
-        else:
-            # Cave entrance and tree (outside the cave)
-            cave_box_x = 50
-            cave_box_y = 150
-            cave_box_width = 300
-            cave_box_height = 100
-            pygame.draw.rect(self.screen, (0, 0, 255), (cave_box_x, cave_box_y, cave_box_width, cave_box_height))
-            self.screen.blit(cave_entrance_img, (50, 150))
+        tree_box_x = self.screen_width - 250
+        tree_box_y = 50
+        tree_box_width = 200
+        tree_box_height = 100
+        pygame.draw.rect(self.screen, (0, 0, 255), (tree_box_x, tree_box_y, tree_box_width, tree_box_height))
 
-            # Tree box
-            tree_box_x = self.screen_width - 250
-            tree_box_y = 750
-            tree_box_width = 200
-            tree_box_height = 100
-            pygame.draw.rect(self.screen, (0, 0, 255), (tree_box_x, tree_box_y, tree_box_width, tree_box_height))
-            self.screen.blit(tree_img, (self.screen_width - 200, 700))
+        self.screen.blit(tree_img, (self.screen_width - 200, 50))
+
+        self.screen.blit(cave_entrance_img, (50, 50))
 
     def handle_interactions(self):
         keys = pygame.key.get_pressed()
 
-        # Tree interaction (outside the cave)
-        if not self.in_cave and self.screen_width - 250 <= self.x <= self.screen_width - 50 and 750 <= self.y <= 850:
+        if self.x >= self.screen_width - 250 and self.y >= 50 and self.y <= 150:
             if keys[K_e]:
-                print("The tree whispers: 'Welcome to the forest...'")
+                choice = input("Do you want to grab sticks (1), cut the tree (requires an axe (2)), or leave (0): ")
+                if choice == '1':
+                    print("You grab some sticks.")
+                elif choice == '2' and any(item == "Axe" for item in self.hotbar_items):
+                    print("You cut the tree down.")
+                elif choice == '0':
+                    print("You leave the tree.")
 
-        # Cave entrance interaction (outside the cave)
-        if not self.in_cave and 50 <= self.x <= 350 and 150 <= self.y <= 250:
-            if keys[K_e]:
-                print("You enter the cave...")
-                self.in_cave = True
 
-        # Rock interaction (inside the cave)
-        if self.in_cave and self.screen_width - 250 <= self.x <= self.screen_width - 50 and 250 <= self.y <= 350:
+        if self.x <= 250 and self.y >= 50 and self.y <= 150:
             if keys[K_e]:
-                if self.has_pickaxe:
-                    print("You acquire some rocks!")
-                else:
-                    print("You need a pickaxe to acquire rocks.")
-
-        # Exit cave interaction
-        if self.in_cave and 50 <= self.x <= 350 and 150 <= self.y <= 250:
-            if keys[K_e]:
-                print("You exit the cave...")
-                self.in_cave = False
+                choice = input("Do you want to enter the cave? (1 to enter, 0 to leave): ")
+                if choice == '1':
+                    self.in_cave = True
+                    print("Entering the cave...")
+                elif choice == '0':
+                    print("You leave the cave entrance.")
 
     def start_game(self):
-        """Main game loop."""
+        """Main game loop"""
         running = True
         while running:
             self.screen.fill((0, 0, 0))  # Black background
@@ -192,19 +162,61 @@ class Game:
             self.select_hotbar_item()
 
 
+def draw_button(screen, text, x, y, width, height, color, text_color):
+    """Draw a button with text"""
+    pygame.draw.rect(screen, color, (x, y, width, height))
+    text_surface = FONT.render(text, True, text_color)
+    text_rect = text_surface.get_rect(center=(x + width // 2, y + height // 2))
+    screen.blit(text_surface, text_rect)
+
+
 def start_game():
-    """Function to start the game."""
-    game = Game(screen, FONT, SCREEN_WIDTH, SCREEN_HEIGHT)
-    game.start_game()
+    """Function to start the game"""
+    game = Game(screen, FONT, SCREEN_WIDTH, SCREEN_HEIGHT)  # Initialize game
+    game.start_game()  # Start the main game loop
+
+
+def show_controls():
+    """Function to display the controls screen"""
+    controls_running = True
+    while controls_running:
+        screen.fill((0, 0, 0))  # Black background
+        draw_button(screen, "Controls", 0, 0, SCREEN_WIDTH, 100, (50, 50, 50), (255, 255, 255))
+        control_text = [
+            "1-9: Select items from Hotbar",
+            "W: Move Up",
+            "S: Move Down",
+            "A: Move Left",
+            "D: Move Right",
+            "E: Interact with objects"
+        ]
+
+        y_offset = 120
+        for text in control_text:
+            control_surface = FONT.render(text, True, (255, 255, 255))
+            screen.blit(control_surface, (50, y_offset))
+            y_offset += 40
+
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                controls_running = False
+            if event.type == MOUSEBUTTONDOWN:
+                if event.button == 1:  # Left click
+                    mouse_pos = pygame.mouse.get_pos()
+                    if (0 <= mouse_pos[0] <= SCREEN_WIDTH and 0 <= mouse_pos[1] <= 100):
+                        controls_running = False  # Close controls screen when clicked
+
+        pygame.display.flip()
 
 
 def main_menu():
-    """Main menu screen."""
+    """Main menu screen"""
     menu_running = True
     while menu_running:
         screen.fill((0, 0, 0))  # Black background
         draw_button(screen, "Untitled 2D Game", 0, 0, SCREEN_WIDTH, 100, (50, 50, 50), (255, 255, 255))
         draw_button(screen, "Start Game", 100, 200, 300, 50, (0, 255, 0), (255, 255, 255))
+        draw_button(screen, "Controls", 100, 300, 300, 50, (255, 165, 0), (255, 255, 255))
 
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -213,14 +225,17 @@ def main_menu():
                 if event.button == 1:  # Left click
                     mouse_pos = pygame.mouse.get_pos()
                     if 100 <= mouse_pos[0] <= 400 and 200 <= mouse_pos[1] <= 250:
-                        start_game()
+                        start_game()  # Start the game when "Start Game" is clicked
+                        menu_running = False
+                    elif 100 <= mouse_pos[0] <= 400 and 300 <= mouse_pos[1] <= 350:
+                        show_controls()  # Show controls when "Controls" is clicked
                         menu_running = False
 
         pygame.display.flip()
 
 
 def main():
-    """Main function to run the game."""
+    """Main function to run the game"""
     main_menu()
 
 
