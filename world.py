@@ -5,6 +5,7 @@ class World:
         self.width = width
         self.height = height
         self.grid = [["." for _ in range(width)] for _ in range(height)]
+        self.dropped_items = {}  # Initialize the dropped_items dictionary
 
     def randomize_features(self):
         self.place_random("T", 10)  # 10 trees

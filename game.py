@@ -4,7 +4,7 @@ from player import Player
 class Game:
     def __init__(self):
         self.world = World()
-        self.player = Player()
+        self.player = Player(self.world)  # Pass world to player
         self.in_cave = False
 
     def start(self):
@@ -32,9 +32,9 @@ class Game:
         print("WASD - Move")
         print("1-9  - Use item from hotbar")
         print("E    - Interact")
-        print("D    - Drop an item")
+        print("Q    - Drop an item")
         print("0    - Leave the cave (if inside)")
-        print("Q    - Quit the game")
+        print("P    - Quit the game")
         print("\nPress Enter to return to the menu.")
         input()
         self.show_start_screen()
@@ -53,7 +53,7 @@ class Game:
             else:
                 self.display_cave()
 
-            print("Hotbar:", self.player.inventory)
+            print("Hotbar:", self.player.inventory.inventory)
             command = input("Enter command: ").lower()
 
             if command in ["w", "a", "s", "d"]:
@@ -81,11 +81,11 @@ class Game:
         current_tile = self.world.grid[y][x]
 
         if current_tile == "T":
-            if "Wood axe" in self.player.inventory or "Stone axe" in self.player.inventory:
+            if "Wood axe" in self.player.inventory.inventory or "Stone axe" in self.player.inventory.inventory:
                 print("You chop the tree. Do you want to proceed? (y/n)")
                 if input("> ").lower() == "y":
                     self.world.grid[y][x] = "."
-                    self.add_to_inventory("Wood", preferred_slot=2)
+                    self.player.inventory.add_to_inventory("Wood", preferred_slot=2)
                     print("You got wood!")
             else:
                 print("You need an axe to chop the tree.")
@@ -93,14 +93,14 @@ class Game:
             print("You found a piece of wood! Pick it up? (y/n)")
             if input("> ").lower() == "y":
                 self.world.grid[y][x] = "."
-                self.add_to_inventory("Wood", preferred_slot=None)
+                self.player.inventory.add_to_inventory("Wood", preferred_slot=None)
                 print("You picked up wood!")
         elif current_tile == "S":
             print("You found a pile of sticks! Do you want to grab sticks? (y/n)")
             if input("> ").lower() == "y":
                 self.world.grid[y][x] = "."
                 for _ in range(2):  # Add 2 sticks
-                    self.add_to_inventory("Stick", preferred_slot=None)
+                    self.player.inventory.add_to_inventory("Stick", preferred_slot=None)
                 print("You grabbed some sticks!")
         elif current_tile == "C":
             print("You found a cave! Do you want to go in? (y/n)")
@@ -113,24 +113,24 @@ class Game:
             if item_name:
                 print(f"You found {item_name}! Pick it up? (y/n)")
                 if input("> ").lower() == "y":
-                    self.add_to_inventory(item_name, preferred_slot=None)
+                    self.player.inventory.add_to_inventory(item_name, preferred_slot=None)
                     self.world.grid[y][x] = "."
                     del self.world.dropped_items[(x, y)]
         else:
             print("Nothing to interact with here.")
 
     def drop_item(self):
-        print("Inventory:", self.player.inventory)
+        print("Inventory:", self.player.inventory.inventory)
         slot = input("Enter the slot number (1-9) of the item to drop: ")
         if slot.isdigit() and 1 <= int(slot) <= 9:
             index = int(slot) - 1
-            item = self.player.inventory[index]
+            item = self.player.inventory.inventory[index]
             if item:
                 x, y = self.player.position
                 if self.world.grid[y][x] == ".":
                     self.world.grid[y][x] = item[0].lower()
                     self.world.dropped_items[(x, y)] = item
-                    self.player.inventory[index] = None
+                    self.player.inventory.inventory[index] = ""
                     print(f"You dropped {item}.")
                 else:
                     print("You can't drop an item here.")
@@ -138,20 +138,6 @@ class Game:
                 print("No item in that slot.")
         else:
             print("Invalid slot number.")
-
-    def add_to_inventory(self, item, preferred_slot=None):
-        if preferred_slot is not None and not self.player.inventory[preferred_slot - 1]:
-            self.player.inventory[preferred_slot - 1] = item
-        else:
-            for i in range(len(self.player.inventory)):
-                if not self.player.inventory[i]:
-                    self.player.inventory[i] = item
-                    return
-            # If inventory is full
-            x, y = self.player.position
-            self.world.grid[y][x] = item[0].lower()
-            self.world.dropped_items[(x, y)] = item
-            print(f"Inventory full! {item} dropped on the ground.")
 
     def blacksmith_menu(self):
         print("\nWelcome to the Blacksmith! What would you like to craft?")
@@ -173,15 +159,15 @@ class Game:
 
         if choice in recipes:
             item, materials, slot = recipes[choice]
-            if self.check_materials(materials):
+            if self.player.inventory.check_materials(materials):
                 for mat, qty in materials.items():
-                    self.remove_from_inventory(mat, qty)
+                    self.player.inventory.remove_from_inventory(mat, qty)
                 if "Stone" in item and "Pickaxe" in item:
-                    self.replace_or_add(item, slot, replace="Wood pickaxe")
+                    self.player.inventory.replace_or_add(item, slot, replace="Wood pickaxe")
                 elif "Stone" in item and "Axe" in item:
-                    self.replace_or_add(item, slot, replace="Wood axe")
+                    self.player.inventory.replace_or_add(item, slot, replace="Wood axe")
                 else:
-                    self.add_to_inventory(item, preferred_slot=slot)
+                    self.player.inventory.add_to_inventory(item, preferred_slot=slot)
                 print(f"You crafted a {item}!")
             else:
                 print("You don't have enough materials.")
@@ -190,32 +176,14 @@ class Game:
         else:
             print("Invalid choice.")
 
-    def replace_or_add(self, item, slot, replace=None):
-        if replace in self.player.inventory:
-            index = self.player.inventory.index(replace)
-            self.player.inventory[index] = item
-        else:
-            self.add_to_inventory(item, preferred_slot=slot)
-
-    def remove_from_inventory(self, item, qty):
-        for _ in range(qty):
-            if item in self.player.inventory:
-                self.player.inventory.remove(item)
-            else:
-                print(f"Not enough {item} in inventory!")
-
-    def check_materials(self, materials):
-        inventory_counts = {item: self.player.inventory.count(item) for item in set(self.player.inventory)}
-        return all(inventory_counts.get(mat, 0) >= qty for mat, qty in materials.items())
-
     def display_cave(self):
         print("You are in the cave. Rocks are everywhere.")
         print("Press 'E' to mine a rock, or '0' to leave the cave.")
 
     def mine_rock(self):
-        if "Wood pickaxe" in self.player.inventory or "Stone pickaxe" in self.player.inventory:
+        if "Wood pickaxe" in self.player.inventory.inventory or "Stone pickaxe" in self.player.inventory.inventory:
             print("You mined a rock and got stone!")
-            self.add_to_inventory("Stone")
+            self.player.inventory.add_to_inventory("Stone")
         else:
             print("You need a pickaxe to mine rocks.")
 

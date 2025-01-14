@@ -1,7 +1,10 @@
+from inventory import Inventory
+
 class Player:
-    def __init__(self, start_x=0, start_y=0):
+    def __init__(self, world, start_x=0, start_y=0):
         self.position = (start_x, start_y)
-        self.inventory = [""] * 9  # 9 hotbar slots, initially empty
+        self.inventory = Inventory(self)  # Pass the Player instance to Inventory
+        self.world = world
 
     def move(self, direction, world):
         x, y = self.position
@@ -16,7 +19,7 @@ class Player:
         self.position = (x, y)
 
     def use_hotbar(self, index):
-        item = self.inventory[index]
+        item = self.inventory.inventory[index]
         if item:
             print(f"You used {item}!")
         else:
