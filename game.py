@@ -65,12 +65,12 @@ class Game:
                     self.interact()
                 else:
                     self.mine_rock()
-            elif command == "d":
+            elif command == "q":
                 self.drop_item()
             elif command == "0" and self.in_cave:
                 self.in_cave = False
                 print("You leave the cave.")
-            elif command == "q":
+            elif command == "p":
                 print("Goodbye!")
                 break
             else:
