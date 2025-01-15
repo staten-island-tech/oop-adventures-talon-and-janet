@@ -22,5 +22,6 @@ class Player:
         item = self.inventory.inventory[index]
         if item:
             print(f"You used {item}!")
+            self.inventory.inventory[index] = ""  # Replace used item with empty space
         else:
             print("That slot is empty!")

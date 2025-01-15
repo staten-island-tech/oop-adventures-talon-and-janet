@@ -5,12 +5,13 @@ class World:
         self.width = width
         self.height = height
         self.grid = [["." for _ in range(width)] for _ in range(height)]
-        self.dropped_items = {}  # Initialize the dropped_items dictionary
+        self.dropped_items = {}
 
     def randomize_features(self):
         self.place_random("T", 10)  # 10 trees
         self.place_random("C", 1)   # 1 cave
         self.place_random("B", 1)   # 1 blacksmith
+        self.place_random("!", 1)   # Battle trigger
         self.place_random("S", 5)   # 5 stick piles
 
     def place_random(self, feature, count):
