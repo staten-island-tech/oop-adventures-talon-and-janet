@@ -97,7 +97,7 @@ class Game:
             print("You found a pile of sticks! Do you want to grab sticks? (y/n)")
             if input("> ").lower() == "y":
                 self.world.grid[y][x] = "."
-                for _ in range(2):  # Add 2 sticks
+                for _ in range(2):  
                     self.player.inventory.add_to_inventory("Stick", preferred_slot=None)
                 print("You grabbed some sticks!")
         elif current_tile == "C":
@@ -184,10 +184,10 @@ class Game:
 
     def battle_scene(self):
         print("\nA battle starts! You encounter two slimes!")
-        slime_healths = [5, 5]  # Health for the two slimes
-        player_health = 20  # Player's starting health
+        slime_healths = [5, 5]  
+        player_health = 20  
 
-        while any(hp > 0 for hp in slime_healths):  # Loop while any slime is alive
+        while any(hp > 0 for hp in slime_healths):  
             print("\nYour Health:", player_health)
             print("Slime 1 Health:", slime_healths[0], "Slime 2 Health:", slime_healths[1])
             print("1. Throw Pickaxe (2 damage, lose pickaxe)")
@@ -197,7 +197,7 @@ class Game:
 
             action = input("> ")
 
-            if action == "1":  # Throw pickaxe
+            if action == "1":  
                 if "Wood pickaxe" in self.player.inventory.inventory or "Stone pickaxe" in self.player.inventory.inventory:
                     print("You throw your pickaxe and deal 2 damage!")
                     target = 0 if slime_healths[0] > 0 else 1
@@ -207,7 +207,7 @@ class Game:
                 else:
                     print("You don't have a pickaxe!")
 
-            elif action == "2":  # Throw axe
+            elif action == "2":  
                 if "Wood axe" in self.player.inventory.inventory or "Stone axe" in self.player.inventory.inventory:
                     print("You throw your axe and deal 3 damage!")
                     target = 0 if slime_healths[0] > 0 else 1
@@ -217,10 +217,10 @@ class Game:
                 else:
                     print("You don't have an axe!")
 
-            elif action == "3":  # Slap with sword
+            elif action == "3":  
                 if "Stone sword" in self.player.inventory.inventory or "Wood sword" in self.player.inventory.inventory:
                     damage = 4
-                    if random.random() <= 0.4:  # 40% critical hit chance
+                    if random.random() <= 0.4:  
                         damage = 10
                         print("Critical hit!")
                     else:
@@ -230,7 +230,7 @@ class Game:
                 else:
                     print("You don't have a sword!")
 
-            elif action == "4":  # Try to run away
+            elif action == "4":  
                 print("You attempt to run away, but the slimes trap you with sticky slime!")
                 player_health -= 5
                 print("You lose 5 health.")
@@ -242,7 +242,7 @@ class Game:
                 print("Invalid action.")
                 continue
 
-            # Slimes attack if they're alive
+            
             for i, hp in enumerate(slime_healths):
                 if hp > 0:
                     print(f"Slime {i + 1} attacks you! You lose 2 health.")
@@ -269,7 +269,7 @@ class Game:
 
             action = input("> ")
 
-            if action == "1":  # Throw pickaxe
+            if action == "1":  
                 if "Wood pickaxe" in self.player.inventory.inventory or "Stone pickaxe" in self.player.inventory.inventory:
                     print("You throw your pickaxe and deal 2 damage!")
                     boss_health = max(0, boss_health - 2)
@@ -278,7 +278,7 @@ class Game:
                 else:
                     print("You don't have a pickaxe!")
 
-            elif action == "2":  # Throw axe
+            elif action == "2":  
                 if "Wood axe" in self.player.inventory.inventory or "Stone axe" in self.player.inventory.inventory:
                     print("You throw your axe and deal 3 damage!")
                     boss_health = max(0, boss_health - 3)
@@ -287,10 +287,10 @@ class Game:
                 else:
                     print("You don't have an axe!")
 
-            elif action == "3":  # Slap with sword
+            elif action == "3":  
                 if "Stone sword" in self.player.inventory.inventory or "Wood sword" in self.player.inventory.inventory:
                     damage = 4
-                    if random.random() <= 0.4:  # 40% critical hit chance
+                    if random.random() <= 0.4:  
                         damage = 10
                         print("Critical hit!")
                     else:
@@ -299,7 +299,7 @@ class Game:
                 else:
                     print("You don't have a sword!")
 
-            elif action == "4":  # Try to run away
+            elif action == "4":  
                 print("The slime boss blocks your path! You cannot escape.")
                 continue
 

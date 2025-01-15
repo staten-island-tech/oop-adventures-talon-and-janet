@@ -1,7 +1,7 @@
 class Inventory:
     def __init__(self, player):
         self.player = player
-        self.inventory = [""] * 20  # 20 hotbar slots
+        self.inventory = [""] * 20  
 
     def add_to_inventory(self, item, preferred_slot=None):
         if preferred_slot is not None and self.inventory[preferred_slot] == "":
