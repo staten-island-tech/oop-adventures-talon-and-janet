@@ -1,36 +1,37 @@
 class Inventory:
     def __init__(self, player):
-        self.player = player  # Link back to Player instance
-        self.inventory = [""] * 9  # 9 hotbar slots, initially empty
+        self.player = player
+        self.inventory = [""] * 20  
 
     def add_to_inventory(self, item, preferred_slot=None):
-        if preferred_slot is not None and not self.player.inventory.inventory[preferred_slot - 1]:
-            self.player.inventory.inventory[preferred_slot - 1] = item
+        if preferred_slot is not None and self.inventory[preferred_slot] == "":
+            self.inventory[preferred_slot] = item
         else:
-            for i in range(len(self.player.inventory.inventory)):
-                if not self.player.inventory.inventory[i]:
-                    self.player.inventory.inventory[i] = item
+            for i in range(len(self.inventory)):
+                if self.inventory[i] == "":
+                    self.inventory[i] = item
                     return
-            # If inventory is full
-            x, y = self.player.position
-            self.player.world.grid[y][x] = item[0].lower()
-            self.player.world.dropped_items[(x, y)] = item
-            print(f"Inventory full! {item} dropped on the ground.")
+        print("No space to add item!")
 
-    def replace_or_add(self, item, slot, replace=None):
-        if replace in self.player.inventory.inventory:
-            index = self.player.inventory.inventory.index(replace)
-            self.player.inventory.inventory[index] = item
-        else:
-            self.add_to_inventory(item, preferred_slot=slot)
-
-    def remove_from_inventory(self, item, qty):
-        for _ in range(qty):
-            if item in self.player.inventory.inventory:
-                self.player.inventory.inventory.remove(item)
-            else:
-                print(f"Not enough {item} in inventory!")
+    def remove_from_inventory(self, item, quantity=1):
+        count = quantity
+        for i in range(len(self.inventory)):
+            if self.inventory[i] == item:
+                self.inventory[i] = ""
+                count -= 1
+                if count == 0:
+                    return
 
     def check_materials(self, materials):
-        inventory_counts = {item: self.player.inventory.inventory.count(item) for item in set(self.player.inventory.inventory)}
-        return all(inventory_counts.get(mat, 0) >= qty for mat, qty in materials.items())
+        inventory_count = {item: self.inventory.count(item) for item in set(self.inventory)}
+        for material, qty in materials.items():
+            if inventory_count.get(material, 0) < qty:
+                return False
+        return True
+
+    def replace_or_add(self, item, slot, replace=None):
+        if replace in self.inventory:
+            index = self.inventory.index(replace)
+            self.inventory[index] = item
+        else:
+            self.add_to_inventory(item, slot)
