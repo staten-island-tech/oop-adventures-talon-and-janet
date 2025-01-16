@@ -1,7 +1,7 @@
 from world import World
 from player import Player
 from blacksmith import Blacksmith
-from cave import Cave
+from cave import Cave, GemCave
 from battle import Battle
 
 class Game:
@@ -9,7 +9,8 @@ class Game:
         self.world = World()
         self.player = Player(self.world)
         self.blacksmith = Blacksmith(self.player)
-        self.cave = Cave(self.player)
+        self.cave = Cave(self.player)  
+        self.gem_cave = GemCave(self.player)  
         self.in_cave = False
         self.battle = Battle(self.player)
 
@@ -109,6 +110,7 @@ class Game:
             print("You found a cave! Do you want to go in? (y/n)")
             if input("> ").lower() == "y":
                 self.in_cave = True
+                self.cave = GemCave(self.player)
         elif current_tile == "B":
             self.blacksmith.menu()
         elif current_tile == "!":

@@ -52,7 +52,7 @@ class Battle:
                     print("You don't have a sword!")
 
             elif action == "4":  
-                print("You attempt to run away, but the slimes trap you with sticky slime!")
+                print("You attempt to run away, but the slimes trap you with slime!")
                 player_health -= 5
                 print("You lose 5 health.")
                 if player_health <= 0:
@@ -74,7 +74,7 @@ class Battle:
                 return
 
         print("\nYou defeated the slimes!")
-        print("The final slime boss appears!")
+        print("The wayyy too unbalanced Final Slime Boss teleports infront of you!")
         self.final_boss_battle(player_health)
 
     def final_boss_battle(self, player_health):
@@ -132,6 +132,6 @@ class Battle:
             player_health -= 10
 
         if player_health <= 0:
-            print("\nYou were defeated by the final slime boss!")
+            print("\nYou were defeated by the very op final slime boss! You were spared because you're kinda weak")
         else:
             print("\nYou defeated the final slime boss! Victory is yours!")
