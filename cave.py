@@ -13,6 +13,7 @@ class Cave:
             self.player.inventory.add_to_inventory("Stone")
         else:
             print("You need a pickaxe to mine rocks.")
+            
 class GemCave(Cave):
     def __init__(self, player):
         super().__init__(player)
