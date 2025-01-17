@@ -5,19 +5,18 @@ class World:
         self.width = width
         self.height = height
         self.grid = [["." for _ in range(width)] for _ in range(height)]
-        self.dropped_items = {}
+        self.dropped_items = {}  # Initialize the dropped_items dictionary
 
     def randomize_features(self):
-        self.place_random("T", 10)  
-        self.place_random("C", 1)   
-        self.place_random("B", 1)   
-        self.place_random("!", 1)   
-        self.place_random("S", 5)   
+        self.place_random("T", 10)  # 10 trees
+        self.place_random("C", 1)   # 1 cave
+        self.place_random("B", 1)   # 1 blacksmith
+        self.place_random("S", 5)   # 5 stick piles
 
     def place_random(self, feature, count):
         for _ in range(count):
             x, y = random.randint(0, self.width - 1), random.randint(0, self.height - 1)
-            while self.grid[y][x] != ".":  
+            while self.grid[y][x] != ".":  # Ensure the spot is empty
                 x, y = random.randint(0, self.width - 1), random.randint(0, self.height - 1)
             self.grid[y][x] = feature
 
